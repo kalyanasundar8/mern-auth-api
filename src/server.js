@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { databaseConnection } from "./config/database.config.js";
 import userRouter from "./routes/user.route.js";
+import { errorHandler } from "./middleware/errorhandler.middleware.js";
 dotenv.config();
 
 // Server
@@ -16,6 +17,8 @@ server.use(express.urlencoded({ extended: false }));
 
 // Routes
 server.use("/api/user", userRouter);
+
+server.use(errorHandler);
 
 // Port
 const port = process.env.PORT || 4545;
