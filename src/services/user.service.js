@@ -1,17 +1,19 @@
 import User from "../models/user.model.js";
 import {
+  UserAlreadyExistsError,
+  ValidationError,
+} from "../utils/custom.errors.js";
+import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/generate.token.js";
-import { hashPassword } from "../utils/password.hash.js";
+import { comparePassword, hashPassword } from "../utils/password.hash.js";
 import { userSchema } from "../utils/schemas/user.schema.js";
 
 export class UserService {
-  static async registerUser(first_name, last_name, email, password) {
-    const userExist = await User.findOne({ email: email });
-    if (userExist) {
-      throw new Error("User already exists!");
-    }
+  // User registration service
+  static async registerUser(userData) {
+    const { first_name, last_name, email, password } = userData;
 
     const validation = userSchema.safeParse({
       first_name,
@@ -24,7 +26,12 @@ export class UserService {
         .map((err) => err.message)
         .join(", ");
 
-      throw new Error(errorMessage);
+      throw new ValidationError(errorMessage);
+    }
+
+    const userExist = await User.findOne({ email: email });
+    if (userExist) {
+      throw new UserAlreadyExistsError("User already exists!");
     }
 
     const hashedPassword = await hashPassword(password);
@@ -48,5 +55,31 @@ export class UserService {
       accessToken: accessToken,
       refreshToken: refreshToken,
     };
+  }
+
+  // User Login service
+  static async loginUser(userData) {
+    const { email, password } = userData;
+
+    // Sanitize email
+    email = email?.trim().toLowerCase();
+
+    const userExists = await User.findOne({ email: email });
+
+    if (!userExists) {
+      throw new Error("No records found!");
+    }
+
+    // Compare password
+    const matchedPassword = await comparePassword(
+      password,
+      userExists.password
+    );
+
+    if (matchedPassword) {
+      return "You logged In!";
+    }
+
+    throw new Error("Invalid credentials!");
   }
 }

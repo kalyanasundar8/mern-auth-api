@@ -8,3 +8,11 @@ export const hashPassword = async (password) => {
     throw new Error("Password hashing error: ", error);
   }
 };
+
+export const comparePassword = async (password, hashedPasword) => {
+  try {
+    return await bcrypt.compare(password, hashedPasword);
+  } catch (error) {
+    throw new Error("Password comparing error: ", error);
+  }
+};

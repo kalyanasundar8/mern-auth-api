@@ -4,12 +4,13 @@ import asyncHandler from "express-async-handler";
 export class UserController {
   static registerUser = asyncHandler(async (req, res) => {
     const { first_name, last_name, email, password } = req.body;
-    const user = await UserService.registerUser(
+    const data = {
       first_name,
       last_name,
       email,
-      password
-    );
+      password,
+    };
+    const user = await UserService.registerUser(data);
     res.cookie("refresh_token", user.refreshToken, {
       httpOnly: true,
       secure: (process.env.NODE_ENV = "production"),
