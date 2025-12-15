@@ -29,4 +29,29 @@ export class UserController {
       },
     });
   });
+
+  static loginUser = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const data = { email, password };
+
+    const user = await UserService.loginUser(data);
+
+    res.cookie("refresh_token", user.refreshToken, {
+      httpOnly: true,
+      secure: (process.env.NODE_ENV = "production"),
+      sameSite: "strict",
+      maxAge: 30 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "User loggedin!",
+      user: {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        access_token: user.accessToken,
+      },
+    });
+  })
 }

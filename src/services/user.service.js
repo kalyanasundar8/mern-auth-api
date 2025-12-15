@@ -59,10 +59,14 @@ export class UserService {
 
   // User Login service
   static async loginUser(userData) {
-    const { email, password } = userData;
+    let { email, password } = userData;
+
+    if(!email || !password) {
+      throw new Error("Email and password are required!");
+    }
 
     // Sanitize email
-    email = email?.trim().toLowerCase();
+    email = email.trim().toLowerCase();
 
     const userExists = await User.findOne({ email: email });
 
@@ -71,15 +75,25 @@ export class UserService {
     }
 
     // Compare password
-    const matchedPassword = await comparePassword(
+    const isPasswordMatch = await comparePassword(
       password,
       userExists.password
     );
 
-    if (matchedPassword) {
-      return "You logged In!";
+    if(!isPasswordMatch) {
+      throw new Error("Invalid email or password!");
     }
 
-    throw new Error("Invalid credentials!");
+    const accessToken = await generateAccessToken(userExists._id);
+    const refreshToken = await generateRefreshToken(userExists._id);
+
+    return {
+      id: userExists._id,
+      first_name: userExists.first_name,
+      last_name: userExists.last_name,
+      email: userExists.email,
+      accessToken: accessToken,
+      refreshToken: refreshToken
+    }
   }
 }
