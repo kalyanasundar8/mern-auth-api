@@ -9,6 +9,7 @@ import {
 } from "../utils/generate.token.js";
 import { comparePassword, hashPassword } from "../utils/password.hash.js";
 import { loginSchema, userSchema } from "../utils/schemas/user.schema.js";
+import { sendEmail } from "../utils/send.email.js";
 
 export class UserService {
   // User registration service
@@ -48,6 +49,8 @@ export class UserService {
 
       const accessToken = await generateAccessToken(user._id);
       const refreshToken = await generateRefreshToken(user._id);
+
+      const isEmailSent = await sendEmail(user.email);
 
       return {
         id: user._id,
