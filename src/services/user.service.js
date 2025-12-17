@@ -45,12 +45,17 @@ export class UserService {
         email: email,
         password: hashedPassword,
         is_active: false,
+        verification_email_sent_at: new Date(),
       });
+
+      try {
+        const isEmailSent = await sendEmail(user.email);
+      } catch (error) {
+        throw new Error("Failed to send verification email to ", user.email);
+      }
 
       const accessToken = await generateAccessToken(user._id);
       const refreshToken = await generateRefreshToken(user._id);
-
-      const isEmailSent = await sendEmail(user.email);
 
       return {
         id: user._id,
@@ -59,6 +64,8 @@ export class UserService {
         email: user.email,
         accessToken: accessToken,
         refreshToken: refreshToken,
+        message:
+          "User registration successful!, Please check your email to verify your account",
       };
     } catch (error) {
       if (user?.id) {
@@ -72,16 +79,12 @@ export class UserService {
   static async loginUser(userData) {
     let { email, password } = userData;
 
-    if (!email || !password) {
-      throw new ValidationError("Email and password are required!");
-    }
-
     const validation = loginSchema.safeParse({
       email,
       password,
     });
 
-    if (!validation) {
+    if (!validation.success) {
       const errorMessage = validation.error.issues
         .map((err) => err.message)
         .join(", ");
@@ -107,8 +110,34 @@ export class UserService {
       throw new ValidationError("Invalid email or password!");
     }
 
+    if (!userExists.is_active) {
+      const lastEmailSent = userExists.verification_email_sent_at;
+      const canSendEmail =
+        !lastEmailSent || Date.now() - lastEmailSent.getTime > 5 * 60 * 1000;
+
+      if (canSendEmail) {
+        try {
+          await sendEmail(userExists.email);
+          await User.updateOne(
+            { _id: userExists.id },
+            { verification_email_sent_at: new Date() }
+          );
+        } catch (error) {
+          console.log(
+            "Failed to send verification email to ",
+            userExists.email
+          );
+        }
+      }
+    }
+
     const accessToken = await generateAccessToken(userExists._id);
     const refreshToken = await generateRefreshToken(userExists._id);
+
+    await User.updateOne(
+      { _id: userExists.id },
+      { last_logged_in: new Date() }
+    );
 
     return {
       id: userExists._id,
@@ -117,6 +146,7 @@ export class UserService {
       email: userExists.email,
       accessToken: accessToken,
       refreshToken: refreshToken,
+      message: "User loggedin successfuly!",
     };
   }
 }

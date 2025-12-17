@@ -19,7 +19,7 @@ export class UserController {
     });
 
     return res.status(201).json({
-      message: "User registered!",
+      message: user.message,
       user: {
         id: user.id,
         first_name: user.first_name,
@@ -44,7 +44,7 @@ export class UserController {
     });
 
     return res.status(200).json({
-      message: "User loggedin!",
+      message: user.message,
       user: {
         id: user.id,
         first_name: user.first_name,
@@ -53,5 +53,5 @@ export class UserController {
         access_token: user.accessToken,
       },
     });
-  })
+  });
 }

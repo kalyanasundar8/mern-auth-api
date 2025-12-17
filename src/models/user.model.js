@@ -25,6 +25,14 @@ const userSchema = new Schema(
       type: Boolean,
       required: true,
     },
+    verification_email_sent_at: {
+      type: Date,
+      required: false,
+    },
+    last_logged_in: {
+      type: Date,
+      required: false,
+    },
   },
   { timestamps: true }
 );

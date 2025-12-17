@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import { MailtrapTransport } from "mailtrap";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -15,7 +14,7 @@ const transport = nodemailer.createTransport({
 });
 
 const sender = {
-  address: "kalyanarunachalam@gmail.com",
+  address: "hello@demomailtrap.co",
   name: "Email setup",
 };
 
