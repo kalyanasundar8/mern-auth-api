@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
+import { string } from "zod";
 
 const userSchema = new Schema(
   {
@@ -32,6 +33,14 @@ const userSchema = new Schema(
     last_logged_in: {
       type: Date,
       required: false,
+    },
+    verification_token: {
+      type: String,
+      required: true,
+    },
+    verification_token_expires: {
+      type: Date,
+      required: true,
     },
   },
   { timestamps: true }

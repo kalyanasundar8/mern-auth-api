@@ -18,7 +18,7 @@ const sender = {
   name: "Email setup",
 };
 
-export const sendEmail = async (user_email) => {
+export const sendEmail = async (user_email, verification_link) => {
   try {
     await transport.sendMail({
       from: sender,
@@ -28,6 +28,7 @@ export const sendEmail = async (user_email) => {
       html: `
       <h2>Welcome to MERN AUTH</h2>
       <p>Please verify email to continue.</p>
+      <a href="${verification_link}">Verify</a>
       `,
       category: "Mail test",
     });

@@ -13,3 +13,10 @@ export const generateRefreshToken = async (user_id) => {
   });
   return token;
 };
+
+export const generateVerificationToken = async (user_id) => {
+  const token = await jwt.sign({ user_id }, process.env.JWT_SECRET, {
+    expiresIn: "15m",
+  });
+  return token;
+};
