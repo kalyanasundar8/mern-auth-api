@@ -34,10 +34,6 @@ const userSchema = new Schema(
       type: Date,
       required: false,
     },
-    verification_token: {
-      type: String,
-      required: true,
-    },
     verification_token_expires: {
       type: Date,
       required: true,

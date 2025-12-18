@@ -6,10 +6,12 @@ import {
 import {
   generateAccessToken,
   generateRefreshToken,
+  generateVerificationToken,
 } from "../utils/generate.token.js";
 import { comparePassword, hashPassword } from "../utils/password.hash.js";
 import { loginSchema, userSchema } from "../utils/schemas/user.schema.js";
 import { sendEmail } from "../utils/send.email.js";
+import { verifyToken } from "../utils/verify.token.js";
 
 export class UserService {
   // User registration service
@@ -39,6 +41,9 @@ export class UserService {
 
     let user;
     try {
+      const verificationToken = await generateVerificationToken(email);
+      const tokenExpires = new Date(Date.now() + 5 * 60 * 1000);
+
       user = await User.create({
         first_name: first_name,
         last_name: last_name,
@@ -46,11 +51,14 @@ export class UserService {
         password: hashedPassword,
         is_active: false,
         verification_email_sent_at: new Date(),
+        verification_token_expires: tokenExpires,
       });
 
       try {
-        const isEmailSent = await sendEmail(user.email);
+        const verificationLink = `${process.env.CLIENT_URL}/mern-auth/src/template/SuccessPage.html?token=${verificationToken}`;
+        const isEmailSent = await sendEmail(user.email, verificationLink);
       } catch (error) {
+        console.log(error.message);
         throw new Error("Failed to send verification email to ", user.email);
       }
 
@@ -148,5 +156,10 @@ export class UserService {
       refreshToken: refreshToken,
       message: "User loggedin successfuly!",
     };
+  }
+
+  // Verify email
+  static async verifyUserEmail(token) {
+    await verifyToken(token);
   }
 }

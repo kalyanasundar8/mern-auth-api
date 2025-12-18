@@ -54,4 +54,10 @@ export class UserController {
       },
     });
   });
+
+  // Verify token
+  static verifyUserEmail = asyncHandler(async (req, res) => {
+    const token = req.query;
+    const verify = await UserService.verifyUserEmail(token);
+  });
 }

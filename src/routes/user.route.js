@@ -5,6 +5,9 @@ const userRouter = express.Router();
 
 userRouter.post("/register", UserController.registerUser);
 userRouter.post("/login", UserController.loginUser);
+userRouter.get("/verify-email", UserController.verifyUserEmail);
+
+// Test
 userRouter.get("/test", AuthMiddleware, (req, res) => {
   res.send(
     `

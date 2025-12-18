@@ -1,6 +1,12 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const TOKEN = process.env.MAILTRAP_TOKEN;
 
@@ -19,17 +25,18 @@ const sender = {
 };
 
 export const sendEmail = async (user_email, verification_link) => {
+  const htmlPath = path.join(__dirname, "../template/VerifyEmail.html");
+  let htmlContent = fs.readFileSync(htmlPath, "utf-8");
+
+  htmlContent = htmlContent.replace("{{VERIFY_EMAIL_LINK}}", verification_link);
+
   try {
     await transport.sendMail({
       from: sender,
       to: user_email,
       subject: "Email from mern auth",
       text: "Verfication email from mern auth",
-      html: `
-      <h2>Welcome to MERN AUTH</h2>
-      <p>Please verify email to continue.</p>
-      <a href="${verification_link}">Verify</a>
-      `,
+      html: htmlContent,
       category: "Mail test",
     });
     console.log("Email sent successfuly");
