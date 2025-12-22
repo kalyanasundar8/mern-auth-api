@@ -25,18 +25,13 @@ const sender = {
 };
 
 export const sendEmail = async (user_email, verification_link) => {
-  const htmlPath = path.join(__dirname, "../template/VerifyEmail.html");
-  let htmlContent = fs.readFileSync(htmlPath, "utf-8");
-
-  htmlContent = htmlContent.replace("{{VERIFY_EMAIL_LINK}}", verification_link);
-
   try {
     await transport.sendMail({
       from: sender,
       to: user_email,
       subject: "Email from mern auth",
       text: "Verfication email from mern auth",
-      html: htmlContent,
+      html: verification_link,
       category: "Mail test",
     });
     console.log("Email sent successfuly");

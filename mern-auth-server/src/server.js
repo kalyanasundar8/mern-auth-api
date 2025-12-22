@@ -4,6 +4,7 @@ import { databaseConnection } from "./config/database.config.js";
 import userRouter from "./routes/user.route.js";
 import { errorHandler } from "./middleware/errorhandler.middleware.js";
 dotenv.config();
+import cors from "cors";
 
 // Server
 const server = express();
@@ -14,6 +15,7 @@ databaseConnection();
 // Setup a middleware
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
+server.use(cors());
 
 // Routes
 server.use("/api/user", userRouter);

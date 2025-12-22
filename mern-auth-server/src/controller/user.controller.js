@@ -57,7 +57,9 @@ export class UserController {
 
   // Verify token
   static verifyUserEmail = asyncHandler(async (req, res) => {
-    const token = req.query;
-    const verify = await UserService.verifyUserEmail(token);
+    // Get the token from the qury object
+    const { token } = req.query;
+    const result = await UserService.verifyUserEmail(token);
+    res.status(200).json(result);
   });
 }

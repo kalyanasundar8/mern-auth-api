@@ -30,13 +30,17 @@ const userSchema = new Schema(
       type: Date,
       required: false,
     },
-    last_logged_in: {
-      type: Date,
-      required: false,
+    verification_token: {
+      type: String,
+      required: true,
     },
     verification_token_expires: {
       type: Date,
       required: true,
+    },
+    last_logged_in: {
+      type: Date,
+      required: false,
     },
   },
   { timestamps: true }

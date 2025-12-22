@@ -11,7 +11,7 @@ import {
 import { comparePassword, hashPassword } from "../utils/password.hash.js";
 import { loginSchema, userSchema } from "../utils/schemas/user.schema.js";
 import { sendEmail } from "../utils/send.email.js";
-import { verifyToken } from "../utils/verify.token.js";
+import { verifyEmailToken } from "../utils/verify.token.js";
 
 export class UserService {
   // User registration service
@@ -50,12 +50,13 @@ export class UserService {
         email: email,
         password: hashedPassword,
         is_active: false,
+        verification_token: verificationToken,
         verification_email_sent_at: new Date(),
         verification_token_expires: tokenExpires,
       });
 
       try {
-        const verificationLink = `${process.env.CLIENT_URL}/mern-auth/src/template/SuccessPage.html?token=${verificationToken}`;
+        const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
         const isEmailSent = await sendEmail(user.email, verificationLink);
       } catch (error) {
         console.log(error.message);
@@ -160,6 +161,36 @@ export class UserService {
 
   // Verify email
   static async verifyUserEmail(token) {
-    await verifyToken(token);
+    // Verify users token
+    const decoded = await verifyEmailToken(token);
+
+    if (!decoded) {
+      throw new ValidationError("Invalid or Expired token!");
+    }
+
+    // const verificationToken = await User.findOne({ verification_token: token });
+
+    // if (!verificationToken) {
+    //   throw new ValidationError(
+    //     "Your token is expired, click here to resend verification email"
+    //   );
+    //
+
+    const user = await User.findOneAndUpdate(
+      { email: decoded.email },
+      { is_active: true },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new Error("User not found!");
+    }
+
+    return {
+      id: user._id,
+      email: user.email,
+      isActive: user.is_active,
+      message: "Email verified successfully",
+    };
   }
 }

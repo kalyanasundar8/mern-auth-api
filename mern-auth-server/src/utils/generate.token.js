@@ -14,9 +14,9 @@ export const generateRefreshToken = async (user_id) => {
   return token;
 };
 
-export const generateVerificationToken = async (user_email) => {
-  const token = await jwt.sign({ user_email }, process.env.JWT_SECRET, {
-    expiresIn: "15m",
+export const generateVerificationToken = async (email) => {
+  const token = await jwt.sign({ email }, process.env.JWT_SECRET, {
+    expiresIn: "5m",
   });
   return token;
 };
